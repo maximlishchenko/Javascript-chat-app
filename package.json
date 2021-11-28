@@ -20,5 +20,10 @@
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^4.4.0"
+  },
+  "devDependencies": {
+    "@linthtml/linthtml": "^0.8.1",
+    "stylelint": "^14.1.0",
+    "stylelint-config-standard": "^24.0.0"
   }
 }

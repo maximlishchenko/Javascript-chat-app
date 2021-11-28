@@ -2,7 +2,7 @@
 
 const socket = io();
 
-const inboxPeople = document.querySelector(".inbox__people");
+const inboxPeople = document.querySelector(".inbox-people");
 
 
 let userName = "";
