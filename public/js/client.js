@@ -3,6 +3,7 @@
 const socket = io();
 
 const inboxPeople = document.querySelector(".inbox-people");
+const messagesHistory = document.querySelector(".messages__history");
 
 
 let userName = "";
@@ -20,6 +21,7 @@ const newUserConnected = function (data) {
     socket.emit("new user", userName);
     //call
     addToUsersBox(userName);
+    newUserNotification(userName);
 };
 
 const addToUsersBox = function (userName) {
@@ -40,6 +42,21 @@ const addToUsersBox = function (userName) {
   `;
     //set the inboxPeople div with the value of userbox
     inboxPeople.innerHTML += userBox;
+};
+
+const newUserNotification = function (userName) {
+    if (!!document.querySelector(`.${userName}-userlist`)) {
+        return;
+    }
+    //setup the divs for displaying the connected users
+    //id is set to a string including the username
+    const notificationMessage = `
+    <div class="notificationMessage">
+      <h5>${userName} has joined the chat.</h5>
+    </div>
+  `;
+    //set the inboxPeople div with the value of userbox
+    messagesHistory.innerHTML += notificationMessage;
 };
 
 //call 
@@ -108,3 +125,36 @@ messageForm.addEventListener("submit", (e) => {
 socket.on("chat message", function (data) {
   addNewMessage({ user: data.nick, message: data.message });
 });
+
+// // Listen for events
+// socket.on('chat', function(data) {
+//     feedback.innerHTML = '';
+//     output.innerHTML += '<p><strong>' + data.handle + ': </strong>' + data.message + '</p>';
+// });
+
+// socket.on('typing', function(data) {
+//     if (data) {
+//         feedback.innerHTML = '<p><em>' + data + ' is typing...</em></p>';
+//     } else {
+//         feedback.innerHTML = '';
+//     }
+// });
+
+var typing = false;
+var timeout = undefined;
+
+function timeoutFunction(){
+    typing = false;
+    socket.emit(noLongerTypingMessage);
+}
+
+function onKeyDownNotEnter(){
+    if(typing == false) {
+        typing = true
+        socket.emit(typingMessage);
+        timeout = setTimeout(timeoutFunction, 5000);
+    } else {
+        clearTimeout(timeout);
+        timeout = setTimeout(timeoutFunction, 5000);
+    }
+}
