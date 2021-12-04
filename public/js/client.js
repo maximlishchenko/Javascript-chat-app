@@ -9,19 +9,16 @@ const messagesHistory = document.querySelector(".messages__history");
 let userName = "";
 let id;
 const newUserConnected = function (data) {
-    
 
     //give the user a random unique id
     id = Math.floor(Math.random() * 1000000);
     userName = 'user-' +id;
-    //console.log(typeof(userName));   
+    //console.log(typeof(userName));
     
 
     //emit an event with the user id
     socket.emit("new user", userName);
     //call
-    addToUsersBox(userName);
-    newUserNotification(userName);
 };
 
 const addToUsersBox = function (userName) {
@@ -45,13 +42,13 @@ const addToUsersBox = function (userName) {
 };
 
 const newUserNotification = function (userName) {
-    if (!!document.querySelector(`.${userName}-userlist`)) {
-        return;
-    }
-    //setup the divs for displaying the connected users
+  if (!!document.querySelector(`.notification-user-${userName}`)) {
+    return;
+}
+  //setup the divs for displaying the connected users
     //id is set to a string including the username
     const notificationMessage = `
-    <div class="notificationMessage">
+    <div class="notification-user-${userName}">
       <h5>${userName} has joined the chat.</h5>
     </div>
   `;
@@ -59,19 +56,32 @@ const newUserNotification = function (userName) {
     messagesHistory.innerHTML += notificationMessage;
 };
 
-//call 
+const informAboutNewUser = function () {
+  document.title = 'New user has joined the chat.';
+}
+
+//call
 newUserConnected();
 
 //when a new user event is detected
 socket.on("new user", function (data) {
   data.map(function (user) {
-          return addToUsersBox(user);
-      });
+      newUserNotification(user);
+      //informAboutNewUser();
+      addToUsersBox(user);
+  });
 });
 
 //when a user leaves
 socket.on("user disconnected", function (userName) {
   document.querySelector(`.${userName}-userlist`).remove();
+  const disconnectMessage = `
+    <div>
+      <h5>${userName} has left the chat.</h5>
+    </div>
+  `;
+    //set the inboxPeople div with the value of userbox
+    messagesHistory.innerHTML += disconnectMessage;
 });
 
 
@@ -125,36 +135,3 @@ messageForm.addEventListener("submit", (e) => {
 socket.on("chat message", function (data) {
   addNewMessage({ user: data.nick, message: data.message });
 });
-
-// // Listen for events
-// socket.on('chat', function(data) {
-//     feedback.innerHTML = '';
-//     output.innerHTML += '<p><strong>' + data.handle + ': </strong>' + data.message + '</p>';
-// });
-
-// socket.on('typing', function(data) {
-//     if (data) {
-//         feedback.innerHTML = '<p><em>' + data + ' is typing...</em></p>';
-//     } else {
-//         feedback.innerHTML = '';
-//     }
-// });
-
-var typing = false;
-var timeout = undefined;
-
-function timeoutFunction(){
-    typing = false;
-    socket.emit(noLongerTypingMessage);
-}
-
-function onKeyDownNotEnter(){
-    if(typing == false) {
-        typing = true
-        socket.emit(typingMessage);
-        timeout = setTimeout(timeoutFunction, 5000);
-    } else {
-        clearTimeout(timeout);
-        timeout = setTimeout(timeoutFunction, 5000);
-    }
-}

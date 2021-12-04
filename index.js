@@ -29,9 +29,9 @@ io.on("connection", function (socket) {
   });
 
   socket.on("disconnect", function () {
-      activeUsers.delete(socket.userId);
-      io.emit("user disconnected", socket.userId);
-    });
+    activeUsers.delete(socket.userId);
+    io.emit("user disconnected", socket.userId);
+  });
 
     socket.on("chat message", function (data) {
       io.emit("chat message", data);
